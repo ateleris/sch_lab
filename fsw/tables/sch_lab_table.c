@@ -16,47 +16,72 @@
  * limitations under the License.
  ************************************************************************/
 
-#include "cfe_tbl_filedef.h" /* Required to obtain the CFE_TBL_FILEDEF macro definition */
+#include "cfe_tbl_filedef.h"
 #include "sch_lab_tbl.h"
-#include "cfe_sb_api_typedefs.h" /* Required to use the CFE_SB_MSGID_WRAP_VALUE macro */
+#include "cfe_sb_api_typedefs.h"
 
-/* This is for the standard set of CFE core app MsgID values */
+/* cFE core services */
 #include "cfe_msgids.h"
+
+/* Mission application message IDs (conditionally included) */
+#ifdef HAVE_TO_LAB
+#include "to_lab_msgids.h"
+#endif
+
+#ifdef HAVE_CI_LAB
+#include "ci_lab_msgids.h"
+#endif
+
+#ifdef HAVE_CF
+#include "cf_msgids.h"
+#endif
+
+#ifdef HAVE_APQS_APP
+#include "apqs_app_msgids.h"
+#endif
 
 /*
 ** SCH Lab schedule table
-** When populating this table:
-**  1. The entire table is processed (SCH_LAB_MISSION_MAX_SCHEDULE_ENTRIES) but entries with a
-**     packet rate of 0 are skipped
-**  2. You can have commented out entries or entries with a packet rate of 0
-**  3. If the table grows too big, increase SCH_LAB_MISSION_MAX_SCHEDULE_ENTRIES
+**
+** TickRate = 100  =>  one tick every 10 ms  =>  PacketRate = 100 means 1 Hz.
+** Entries are staggered slightly so the messages don't all burst in the
+** same tick.
+**
+** Entry format: { MsgID, PacketRate, FcnCode }
+**   PayloadLength and MessageBuffer default to 0 (no extra payload).
 */
-
 SCH_LAB_ScheduleTable_t Schedule = {
     .TickRate = 100,
     .Config   = {
-        /*
-        ** This is an empty default table.
-        ** Projects should override this default table with their own configurations.
-        ** Examples of cFE HK packet requests are shown in the comment below.
-        */
+
+        /* --- cFE core housekeeping requests (1 Hz, staggered) --- */
+        {CFE_SB_MSGID_WRAP_VALUE(CFE_ES_SEND_HK_MID),   100, 0},
+        {CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_SEND_HK_MID),   96, 0},
+        {CFE_SB_MSGID_WRAP_VALUE(CFE_SB_SEND_HK_MID),    97, 0},
+        {CFE_SB_MSGID_WRAP_VALUE(CFE_TBL_SEND_HK_MID),   98, 0},
+        {CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_SEND_HK_MID),  99, 0},
+
+        /* --- Application housekeeping requests (1 Hz) --- */
+#ifdef HAVE_TO_LAB
+        {CFE_SB_MSGID_WRAP_VALUE(TO_LAB_SEND_HK_MID),   100, 0},
+#endif
+
+#ifdef HAVE_CI_LAB
+        {CFE_SB_MSGID_WRAP_VALUE(CI_LAB_SEND_HK_MID),   100, 0},
+#endif
+
+#ifdef HAVE_APQS_APP
+        {CFE_SB_MSGID_WRAP_VALUE(APQS_APP_SEND_HK_MID), 100, 0},
+#endif
+
+#ifdef HAVE_CF
+        {CFE_SB_MSGID_WRAP_VALUE(CF_SEND_HK_MID),       100, 0},
+        {CFE_SB_MSGID_WRAP_VALUE(CF_WAKE_UP_MID),        100, 0},
+#endif
+
+        /* Sentinel entry — marks end of active entries */
         {CFE_SB_MSGID_RESERVED, 0, 0},
-        /*
-        ** Example of a cFE HK packet requests
-        {CFE_SB_MSGID_WRAP_VALUE(CFE_ES_SEND_HK_MID), 100, 0},
-        {CFE_SB_MSGID_WRAP_VALUE(CFE_TBL_SEND_HK_MID), 50, 0},
-        {CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_SEND_HK_MID), 98, 0},
-        {CFE_SB_MSGID_WRAP_VALUE(CFE_SB_SEND_HK_MID), 97, 0},
-        {CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_SEND_HK_MID), 96, 0},
-        */
     }
 };
 
-/*
-** The macro below identifies:
-**    1) the data structure type to use as the table image format
-**    2) the name of the table to be placed into the cFE Table File Header
-**    3) a brief description of the contents of the file image
-**    4) the desired name of the table image binary file that is cFE compatible
-*/
 CFE_TBL_FILEDEF(Schedule, SCH_LAB.Schedule, Schedule Lab MsgID Table, sch_lab_table.tbl)
