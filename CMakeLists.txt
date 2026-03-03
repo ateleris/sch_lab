@@ -2,7 +2,7 @@ project(CFS_SCH_LAB C)
 
 # These references are specifically needed for the table build so that
 # app-specific MsgIDs can be conditionally included in the schedule table.
-foreach(EXT_APP to_lab ci_lab sample_app apqs_app hs fm ds sc lc cf)
+foreach(EXT_APP to_lab ci_lab apqs_app hs fm ds sc lc cf)
   list(FIND TGTSYS_${SYSVAR}_APPS ${EXT_APP} HAVE_APP)
   if (HAVE_APP GREATER_EQUAL 0)
     include_directories($<TARGET_PROPERTY:${EXT_APP},INTERFACE_INCLUDE_DIRECTORIES>)
