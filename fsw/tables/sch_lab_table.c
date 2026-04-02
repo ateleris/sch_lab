@@ -76,7 +76,7 @@ SCH_LAB_ScheduleTable_t Schedule = {
 
 #ifdef HAVE_CF
         {CFE_SB_MSGID_WRAP_VALUE(CF_SEND_HK_MID),       100, 0},
-        {CFE_SB_MSGID_WRAP_VALUE(CF_WAKE_UP_MID),        100, 0},
+        {CFE_SB_MSGID_WRAP_VALUE(CF_WAKE_UP_MID),        10, 0},
 #endif
 
         /* Sentinel entry — marks end of active entries */
