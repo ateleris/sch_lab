@@ -75,6 +75,11 @@ SCH_LAB_ScheduleTable_t Schedule = {
         {CFE_SB_MSGID_WRAP_VALUE(CF_WAKE_UP_MID),        10, 0},
 #endif
 
+        /* --- Application housekeeping requests (all 5s) --- */
+#ifdef HAVE_APQS_APP
+        {CFE_SB_MSGID_WRAP_VALUE(APQS_APP_SEND_HK_MID), 100, 0},
+#endif
+
         /* Sentinel entry — marks end of active entries */
         {CFE_SB_MSGID_RESERVED, 0, 0},
     }
